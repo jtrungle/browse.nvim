@@ -4,10 +4,8 @@
 
 ##### browse for anything using your choice of method
 
-![Neovim](https://img.shields.io/badge/NeoVim-%2357A143.svg?&style=for-the-badge&logo=neovim&logoColor=white)
-[![Lua](https://img.shields.io/badge/Lua-blue.svg?style=for-the-badge&logo=lua)](http://www.lua.org)
 [![GitHub Repo stars](https://img.shields.io/github/stars/lalitmee/browse.nvim?style=for-the-badge)](https://github.com/lalitmee/browse.nvim/stargazers)
-[![Tests](https://img.shields.io/github/workflow/status/lalitmee/browse.nvim/CI?label=Tests&style=for-the-badge)](https://github.com/lalitmee/browse.nvim/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/github/actions/workflow/status/lalitmee/browse.nvim/ci.yml?label=Tests&style=for-the-badge)](https://github.com/lalitmee/browse.nvim/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/lalitmee/browse.nvim?color=%23FFC600&style=for-the-badge)](https://github.com/lalitmee/browse.nvim/blob/main/LICENSE)
 
 ![browse.nvim](https://user-images.githubusercontent.com/10762218/217238018-29564296-063a-43cb-a3c1-28703db9c31c.gif)
