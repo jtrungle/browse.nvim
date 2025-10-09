@@ -28,6 +28,7 @@ M.opts = {
             firefox = false,
             safari = false,
             edge = false,
+            brave = false,
         },
         group_by_folder = true, -- Group by browser folder structure
         auto_detect = true, -- Auto-detect available browsers
@@ -51,6 +52,12 @@ M.opts = {
         grouped_bookmarks = "->",
         file_bookmark = "📄",
         browser_bookmark = "🌐",
+        default_browser = "󰖟", -- globe icon
+        chrome = "󰊯",
+        firefox = "󰈹",
+        safari = "󰀹",
+        edge = "󰇩",
+        brave = " brave icon ?", -- Placeholder, will need a real icon
     },
 
     persist_grouped_bookmarks_query = false,

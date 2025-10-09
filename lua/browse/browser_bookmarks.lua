@@ -21,6 +21,11 @@ local bookmark_paths = {
         Darwin = "~/Library/Application Support/Microsoft Edge/Default/Bookmarks",
         Windows_NT = "%LOCALAPPDATA%/Microsoft/Edge/User Data/Default/Bookmarks",
     },
+    brave = {
+        Linux = "~/.config/BraveSoftware/Brave-Browser/Default/Bookmarks",
+        Darwin = "~/Library/Application Support/BraveSoftware/Brave-Browser/Default/Bookmarks",
+        Windows_NT = "%LOCALAPPDATA%/BraveSoftware/Brave-Browser/User Data/Default/Bookmarks",
+    },
 }
 
 -- Get OS name for path resolution
@@ -210,7 +215,7 @@ function M.get_browser_bookmarks(browser_name)
                 goto continue
             end
 
-            if browser_name == "chrome" or browser_name == "edge" then
+            if browser_name == "chrome" or browser_name == "edge" or browser_name == "brave" then
                 parsed_bookmarks = parse_chromium_bookmarks(data)
             elseif browser_name == "firefox" then
                 parsed_bookmarks = parse_firefox_bookmarks(data)
@@ -228,7 +233,7 @@ end
 -- Get bookmarks from all available browsers
 function M.get_all_browser_bookmarks(browser_config)
     local all_bookmarks = {}
-    local browsers = { "chrome", "firefox", "safari", "edge" }
+    local browsers = { "chrome", "firefox", "safari", "edge", "brave" }
     
     for _, browser in ipairs(browsers) do
         if browser_config[browser] then
@@ -269,13 +274,12 @@ function M.convert_to_browse_format(bookmarks, group_by_folder)
             local folder = bookmark.folder or "Imported"
             if not grouped[folder] then
                 grouped[folder] = {
-                    name = folder .. " (from " .. (bookmark.source or "browser") .. ")"
+                    name = folder, -- Use the clean folder name
                 }
             end
             
-            -- Create a safe key name
-            local key = bookmark.name:gsub("[^%w_]", "_"):lower()
-            grouped[folder][key] = bookmark.url
+            -- Use the original bookmark name as the key
+            grouped[folder][bookmark.name] = { url = bookmark.url, source = bookmark.source }
         end
         
         return grouped
