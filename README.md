@@ -7,7 +7,7 @@
 ![Neovim](https://img.shields.io/badge/NeoVim-%2357A143.svg?&style=for-the-badge&logo=neovim&logoColor=white)
 [![Lua](https://img.shields.io/badge/Lua-blue.svg?style=for-the-badge&logo=lua)](http://www.lua.org)
 [![GitHub Repo stars](https://img.shields.io/github/stars/lalitmee/browse.nvim?style=for-the-badge)](https://github.com/lalitmee/browse.nvim/stargazers)
-[![CI](https://img.shields.io/github/actions/workflow_status/lalitmee/browse.nvim/ci.yml?style=for-the-badge)](https://github.com/lalitmee/browse.nvim/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/github/workflow/status/lalitmee/browse.nvim/CI?label=Tests&style=for-the-badge)](https://github.com/lalitmee/browse.nvim/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/lalitmee/browse.nvim?color=%23FFC600&style=for-the-badge)](https://github.com/lalitmee/browse.nvim/blob/main/LICENSE)
 
 ![browse.nvim](https://user-images.githubusercontent.com/10762218/217238018-29564296-063a-43cb-a3c1-28703db9c31c.gif)
@@ -90,6 +90,7 @@ require('browse').setup({
     deduplicate_bookmarks = true,
     cache_bookmarks = true,
     cache_duration = 60,
+    create_commands = true, -- Creates default user commands
     plain_text = {
         delimiters = { ":", "=" },
         comment_chars = { "#", ";" },
@@ -131,6 +132,9 @@ require('browse').setup({
 - `cache_duration` (number): The duration in seconds for which the bookmark cache is valid.
   - **Default**: `60`
 
+- `create_commands` (boolean): If `true`, the plugin will create default user commands for you.
+  - **Default**: `true`
+
 - `plain_text` (table): Configuration for parsing plain text (`.txt`) bookmark files.
   - `delimiters` (table): Characters used to separate a bookmark's name from its URL.
   - `comment_chars` (table): Characters that signify the start of a comment line.
@@ -160,6 +164,17 @@ The main entry point is the `require('browse').browse()` Lua function. This open
 
 Text selected in visual mode will be used as the initial query for searches.
 
+### Commands
+
+By default, `browse.nvim` creates several commands for you. You can disable this by setting `create_commands = false` in your setup.
+
+- `:Browse`: Opens the main Telescope picker to select a search type.
+- `:BrowseBookmarks`: Opens the Telescope picker directly to your bookmarks.
+- `:BrowseSearch`: Prompts for input and searches using your configured `provider`.
+- `:DevdocsSearch`: Prompts for input and searches on devdocs.io.
+- `:DevdocsFiletypeSearch`: Prompts for input and searches on devdocs.io, using the current buffer's filetype.
+- `:MdnSearch`: Prompts for input and searches on MDN Web Docs.
+
 ### API
 
 All public functions are available under the `require('browse')` module.
@@ -178,32 +193,65 @@ All public functions are available under the `require('browse')` module.
 
 - `browse.mdn.search()`: Prompts for input and searches on MDN Web Docs.
 
-### Commands
+## Bookmarks
 
-The plugin does not create any commands by default. You can create them yourself for easier access.
+`browse.nvim` can aggregate bookmarks from three sources: a Lua table, external files, and your web browser's bookmarks.
 
-**Example:**
-```lua
-vim.api.nvim_create_user_command("Browse", function()
-    require("browse").browse()
-end, {})
+### Lua Table
 
-vim.api.nvim_create_user_command("BrowseBookmarks", function()
-    require("browse").open_bookmarks()
-end, {})
+You can define bookmarks directly in your `setup()` call or pass them to the `browse()` or `open_bookmarks()` functions. The table can have several formats:
 
-vim.api.nvim_create_user_command("BrowseSearch", function()
-    require("browse").input_search()
-end, {})
+1.  **Simple list of URLs**:
+    ```lua
+    bookmarks = {
+        "https://neovim.io",
+        "https://github.com/nvim-telescope/telescope.nvim",
+    }
+    ```
 
-vim.api.nvim_create_user_command("DevdocsSearch", function()
-    require("browse.devdocs").search()
-end, {})
+2.  **Aliases for URLs** (name = URL):
+    ```lua
+    bookmarks = {
+        neovim = "https://neovim.io",
+        telescope = "https://github.com/nvim-telescope/telescope.nvim",
+    }
+    ```
+    If the URL contains `%s`, it will be treated as a search query, and you will be prompted for input.
+    ```lua
+    bookmarks = {
+        gh_search = "https://github.com/search?q=%s",
+    }
+    ```
 
-vim.api.nvim_create_user_command("MdnSearch", function()
-    require("browse.mdn").search()
-end, {})
-```
+3.  **Grouped bookmarks**:
+    You can create nested tables to group related bookmarks.
+    ```lua
+    bookmarks = {
+        neovim = {
+            name = "Neovim Resources", -- Optional display name for the group
+            website = "https://neovim.io",
+            discourse = "https://neovim.discourse.group/",
+        },
+    }
+    ```
+
+### External Files
+
+Use the `bookmark_files` option to specify a list of files to load bookmarks from. The following formats are supported:
+
+- `json`: Standard JSON format.
+- `yaml`: YAML format.
+- `toml`: TOML format.
+- `txt`: A plain text file where each line is a bookmark. The format can be `name: url` or just `url`. Use the `plain_text` config table to customize delimiters and comments.
+
+### Browser Bookmarks
+
+Set `browser_bookmarks.enabled = true` to import bookmarks from your installed web browsers.
+
+- `enabled` (boolean): Master switch to enable/disable this feature.
+- `browsers` (table): A table of booleans to control which browsers to import from (e.g., `{ chrome = true, firefox = false }`).
+- `auto_detect` (boolean): If `true`, the plugin will try to find installed browsers and enable them automatically if they are not explicitly set in the `browsers` table.
+- `group_by_folder` (boolean): If `true`, bookmarks will be nested in the picker according to the folder structure in your browser.
 
 ## Bookmarks
 
