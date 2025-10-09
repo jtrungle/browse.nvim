@@ -151,102 +151,99 @@ function M.normalize_bookmarks(bookmarks)
     return normalized
 end
 
--- Load bookmarks from all configured sources
-function M.load_all_bookmarks()
+-- Load bookmarks from manual sources (config and files)
+function M.load_manual_bookmarks()
     local opts = config.opts or {}
-    local all_bookmarks = {}
-    local sources = {}
-    
+    local manual_sources = {}
+
     -- Load from config
     if opts.bookmarks and not vim.tbl_isempty(opts.bookmarks) then
-        table.insert(sources, {
-            type = M.SOURCE_TYPES.CONFIG,
-            bookmarks = opts.bookmarks
-        })
+        table.insert(manual_sources, opts.bookmarks)
     end
-    
+
     -- Load from files
     if opts.bookmark_files then
         for _, file_path in ipairs(opts.bookmark_files) do
             local file_bookmarks_data, error = file_bookmarks.load_from_file(file_path)
             if file_bookmarks_data then
-                table.insert(sources, {
-                    type = M.SOURCE_TYPES.FILE,
-                    path = file_path,
-                    bookmarks = file_bookmarks_data
-                })
+                table.insert(manual_sources, file_bookmarks_data)
             else
                 vim.notify("Failed to load bookmarks from " .. file_path .. ": " .. (error or "unknown error"), vim.log.levels.WARN)
             end
         end
     end
-    
-    -- Load from browsers
-    if opts.browser_bookmarks and opts.browser_bookmarks.enabled then
-        local browser_config = opts.browser_bookmarks.browsers or {}
-        local browser_bookmarks_data = browser_bookmarks.get_all_browser_bookmarks(browser_config)
-        
-        if not vim.tbl_isempty(browser_bookmarks_data) then
-            -- Convert to browse format
-            local group_by_folder = opts.browser_bookmarks.group_by_folder ~= false
-            local converted = browser_bookmarks.convert_to_browse_format(browser_bookmarks_data, group_by_folder)
-            
-            table.insert(sources, {
-                type = M.SOURCE_TYPES.BROWSER,
-                bookmarks = converted
-            })
-        end
+
+    if vim.tbl_isempty(manual_sources) then
+        return {}
     end
-    
-    -- Merge all sources
-    local bookmark_tables = {}
-    for _, source in ipairs(sources) do
-        table.insert(bookmark_tables, source.bookmarks)
-    end
-    
-    if not vim.tbl_isempty(bookmark_tables) then
-        all_bookmarks = M.merge_bookmarks(unpack(bookmark_tables))
-    end
-    
-    -- Apply deduplication if enabled
+
+    local merged = M.merge_bookmarks(unpack(manual_sources))
     if opts.deduplicate_bookmarks ~= false then
-        all_bookmarks = M.deduplicate_bookmarks(all_bookmarks)
+        merged = M.deduplicate_bookmarks(merged)
     end
-    
-    -- Normalize structure
-    all_bookmarks = M.normalize_bookmarks(all_bookmarks)
-    
-    -- Validate final result
-    local valid, errors = M.validate_bookmarks(all_bookmarks)
-    if not valid then
-        for _, err in ipairs(errors) do
-            vim.notify("Bookmark validation error: " .. err, vim.log.levels.WARN)
-        end
-    end
-    
-    return all_bookmarks, sources
+    merged = M.normalize_bookmarks(merged)
+
+    return merged
 end
 
--- Refresh bookmark cache
-local bookmark_cache = {}
-local cache_timestamp = 0
+-- Load bookmarks from browser sources
+function M.load_browser_bookmarks()
+    local opts = config.opts or {}
+    if not (opts.browser_bookmarks and opts.browser_bookmarks.enabled) then
+        return {}
+    end
+
+    local browser_config = opts.browser_bookmarks.browsers or {}
+    local browser_bookmarks_data = browser_bookmarks.get_all_browser_bookmarks(browser_config)
+
+    if vim.tbl_isempty(browser_bookmarks_data) then
+        return {}
+    end
+
+    local group_by_folder = opts.browser_bookmarks.group_by_folder ~= false
+    local converted = browser_bookmarks.convert_to_browse_format(browser_bookmarks_data, group_by_folder)
+
+    if opts.deduplicate_bookmarks ~= false then
+        converted = M.deduplicate_bookmarks(converted)
+    end
+    converted = M.normalize_bookmarks(converted)
+
+    return converted
+end
+
+-- Caching logic
+local manual_bookmark_cache = {}
+local browser_bookmark_cache = {}
+local manual_cache_timestamp = 0
+local browser_cache_timestamp = 0
 local CACHE_DURATION = 60 -- seconds
 
-function M.get_bookmarks(force_refresh)
+-- Get manual bookmarks (cached)
+function M.get_manual_bookmarks(force_refresh)
     local current_time = vim.loop.now() / 1000
-    
-    if force_refresh or (current_time - cache_timestamp) > CACHE_DURATION or vim.tbl_isempty(bookmark_cache) then
-        bookmark_cache, _ = M.load_all_bookmarks()
-        cache_timestamp = current_time
+    if force_refresh or (current_time - manual_cache_timestamp) > CACHE_DURATION or vim.tbl_isempty(manual_bookmark_cache) then
+        manual_bookmark_cache = M.load_manual_bookmarks()
+        manual_cache_timestamp = current_time
     end
-    
-    return bookmark_cache
+    return manual_bookmark_cache
+end
+
+-- Get browser bookmarks (cached)
+function M.get_browser_bookmarks(force_refresh)
+    local current_time = vim.loop.now() / 1000
+    if force_refresh or (current_time - browser_cache_timestamp) > CACHE_DURATION or vim.tbl_isempty(browser_bookmark_cache) then
+        browser_bookmark_cache = M.load_browser_bookmarks()
+        browser_cache_timestamp = current_time
+    end
+    return browser_bookmark_cache
 end
 
 -- Clear bookmark cache
 function M.clear_cache()
-    bookmark_cache = {}
-    cache_timestamp = 0
+    manual_bookmark_cache = {}
+    browser_bookmark_cache = {}
+    manual_cache_timestamp = 0
+    browser_cache_timestamp = 0
 end
 
 -- Add bookmark to file

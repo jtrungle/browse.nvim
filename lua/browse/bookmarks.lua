@@ -14,22 +14,27 @@ local M = {}
 M.search_bookmarks = function(config)
     config = config or {}
     local level = config.level or 0
+    local source = config.source or "manual"
     local icons = config["icons"] or defaults.opts["icons"] or {}
     local persist_grouped_bookmarks_query = config["persist_grouped_bookmarks_query"]
         or defaults.opts["persist_grouped_bookmarks_query"]
         or false
 
-    -- Use bookmark manager if no specific bookmarks provided
+    -- Use bookmark manager based on the source
     local bookmarks
     if config["bookmarks"] and not vim.tbl_isempty(config["bookmarks"]) then
         bookmarks = config["bookmarks"]
+    elseif source == "browser" then
+        bookmarks = bookmark_manager.get_browser_bookmarks()
     else
-        bookmarks = bookmark_manager.get_bookmarks()
+        bookmarks = bookmark_manager.get_manual_bookmarks()
     end
 
     local visual_text = config["visual_text"]
     local bookmarks_copy = vim.deepcopy(bookmarks)
-    local theme = themes.get_dropdown()
+
+    local picker_name = source == "browser" and "browser_bookmarks" or "manual_bookmarks"
+    local theme = utils.get_theme(picker_name)
     local opts = vim.tbl_deep_extend("force", config, theme or {})
 
     local bookmarks_list = {}
@@ -82,10 +87,12 @@ M.search_bookmarks = function(config)
             display = formatted_name .. " " .. icons.bookmark_alias .. " " .. value
             ordinal = entry[1] .. entry[2]
         elseif type(entry) == "table" and type(entry[2]) == "table" then
-            local count = count_items(entry[2])
-            display = formatted_name .. " " .. icons.grouped_bookmarks .. " " .. count
+            local group_table = entry[2]
+            local count = count_items(group_table)
+            local group_name = group_table.name or entry[1] -- Use inner name or fall back to key
+            display = formatted_name .. " -> " .. group_name .. " (" .. count .. ")"
             ordinal = entry[1]
-            value = entry[2]
+            value = group_table
         end
 
         return {
@@ -120,9 +127,16 @@ M.search_bookmarks = function(config)
         sorter.tiebreak = function() return false end
     end
 
+    local prompt_title = icons.bookmarks_prompt .. "Bookmarks"
+    if source == "browser" then
+        prompt_title = icons.bookmarks_prompt .. "Browser Bookmarks"
+    else
+        prompt_title = icons.bookmarks_prompt .. "Manual Bookmarks"
+    end
+
     pickers
         .new(opts, {
-            prompt_title = icons.bookmarks_prompt .. "Bookmarks",
+            prompt_title = prompt_title,
             finder = create_finder(),
             sorter = sorter,
             attach_mappings = function(prompt_bufnr, _) 

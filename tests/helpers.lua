@@ -2,13 +2,15 @@ local M = {}
 
 -- Mock vim functions for testing
 M.setup_mocks = function()
-    -- Mock vim.fn functions
+    -- Mock vim functions
     _G.vim = _G.vim or {}
     _G.vim.fn = _G.vim.fn or {}
     _G.vim.loop = _G.vim.loop or {}
     _G.vim.ui = _G.vim.ui or {}
     _G.vim.bo = _G.vim.bo or {}
-    _G.vim.notify = _G.vim.notify or function() end
+
+    -- Silence notifications
+    _G.vim.notify = function() end
 
     -- Mock file system operations
     _G.vim.fn.filereadable = function(path)
@@ -218,9 +220,15 @@ M.mock_telescope = function()
             end
         },
         themes = {
-            get_dropdown = function()
-                return { theme = "dropdown" }
-            end
+            get_dropdown = function(opts)
+                return { results_title = "Results", theme_opts = opts }
+            end,
+            get_cursor = function(opts)
+                return { results_title = "Results", theme_opts = opts }
+            end,
+            get_ivy = function(opts)
+                return { results_title = "Results", theme_opts = opts }
+            end,
         },
         actions = {
             close = function() end,

@@ -15,10 +15,10 @@ local get_visual_text = require("browse.utils").get_visual_text
 local browse = function(config)
     config = config or {}
 
-    local bookmarks = config["bookmarks"] or defaults.opts["bookmarks"] or {}
     local visual_text = get_visual_text()
+    local utils = require("browse.utils")
 
-    local theme = themes.get_dropdown()
+    local theme = utils.get_theme("browse")
     local opts = vim.tbl_deep_extend("force", config, theme or {})
 
     pickers
@@ -27,7 +27,8 @@ local browse = function(config)
 
             finder = finders.new_table({
                 results = {
-                    { "Bookmarks Search", "bookmarks" },
+                    { "Manual Bookmarks", "manual_bookmarks" },
+                    { "Browser Bookmarks", "browser_bookmarks" },
                     { "Devdocs Search", "devdocs" },
                     { "Devdocs Search with filetype", "devdocs_file" },
                     { "Input Search", "input" },
@@ -51,9 +52,15 @@ local browse = function(config)
                     local selection = action_state.get_selected_entry()
                     local browse_selection = selection["ordinal"]
 
-                    if browse_selection == "bookmarks" then
+                    if browse_selection == "manual_bookmarks" then
                         search_bookmarks({
-                            bookmarks = bookmarks,
+                            source = "manual",
+                            visual_text = visual_text,
+                            cache_picker = { num_pickers = defaults.opts.cache_pickers },
+                        })
+                    elseif browse_selection == "browser_bookmarks" then
+                        search_bookmarks({
+                            source = "browser",
                             visual_text = visual_text,
                             cache_picker = { num_pickers = defaults.opts.cache_pickers },
                         })
@@ -78,8 +85,16 @@ local M = {
     input_search = function()
         search_input(get_visual_text())
     end,
-    open_bookmarks = function(config)
+    open_manual_bookmarks = function(config)
         config = config or {}
+        config.source = "manual"
+        config.visual_text = get_visual_text()
+        config.cache_picker = { num_pickers = defaults.opts.cache_pickers }
+        search_bookmarks(config)
+    end,
+    open_browser_bookmarks = function(config)
+        config = config or {}
+        config.source = "browser"
         config.visual_text = get_visual_text()
         config.cache_picker = { num_pickers = defaults.opts.cache_pickers }
         search_bookmarks(config)
@@ -98,7 +113,8 @@ function M.setup(opts)
         end
 
         command("Browse", function() M.browse() end, {})
-        command("BrowseBookmarks", function() M.open_bookmarks() end, {})
+        command("BrowseManualBookmarks", function() M.open_manual_bookmarks() end, {})
+        command("BrowseBrowserBookmarks", function() M.open_browser_bookmarks() end, {})
         command("BrowseSearch", function() M.input_search() end, {})
         command("DevdocsSearch", function() M.devdocs.search() end, {})
         command("DevdocsFiletypeSearch", function() M.devdocs.search_with_filetype() end, {})

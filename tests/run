@@ -34,7 +34,7 @@ cd "$PLUGIN_DIR"
 echo -e "${YELLOW}Running tests...${NC}"
 
 # Test each file individually for better error reporting
-TEST_FILES=("tests/browse/utils_spec.lua" "tests/browse/browser_bookmarks_spec.lua" "tests/browse/file_bookmarks_spec.lua" "tests/browse/bookmark_manager_spec.lua")
+TEST_FILES=("tests/browse/utils_spec.lua" "tests/browse/browser_bookmarks_spec.lua" "tests/browse/file_bookmarks_spec.lua" "tests/browse/bookmark_manager_spec.lua" "tests/browse/init_spec.lua")
 FAILED_TESTS=()
 
 for test_file in "${TEST_FILES[@]}"; do

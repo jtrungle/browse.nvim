@@ -59,6 +59,11 @@ M.opts = {
     cache_pickers = 10,
     sort_results = true,
     create_commands = true,
+    themes = {
+        browse = "dropdown",
+        manual_bookmarks = "dropdown",
+        browser_bookmarks = nil, -- nil uses default telescope theme
+    },
 }
 
 function M.setup(opts)

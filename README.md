@@ -89,6 +89,11 @@ require('browse').setup({
     cache_bookmarks = true,
     cache_duration = 60,
     create_commands = true, -- Creates default user commands
+    themes = {
+        browse = "dropdown",
+        manual_bookmarks = "dropdown",
+        browser_bookmarks = nil, -- nil uses the default Telescope theme
+    },
     plain_text = {
         delimiters = { ":", "=" },
         comment_chars = { "#", ";" },
@@ -133,6 +138,27 @@ require('browse').setup({
 - `create_commands` (boolean): If `true`, the plugin will create default user commands for you.
   - **Default**: `true`
 
+- `themes` (table): A table to configure the Telescope theme for each picker.
+  - For simple use, the value can be a string corresponding to a Telescope theme (e.g., `"dropdown"`, `"cursor"`, `"ivy"`).
+  - For advanced use, the value can be a table in the format `{ "theme_name", { theme_options } }`.
+  - If the value is `nil`, the default Telescope UI will be used.
+  - **Default**:
+    ```lua
+    themes = {
+        browse = "dropdown",
+        manual_bookmarks = "dropdown",
+        browser_bookmarks = nil,
+    }
+    ```
+  - **Advanced Example**:
+    ```lua
+    themes = {
+        browse = { "dropdown", { winblend = 10, height = 25 } },
+        manual_bookmarks = "cursor",
+        browser_bookmarks = nil, -- Use default Telescope theme
+    }
+    ```
+
 - `plain_text` (table): Configuration for parsing plain text (`.txt`) bookmark files.
   - `delimiters` (table): Characters used to separate a bookmark's name from its URL.
   - `comment_chars` (table): Characters that signify the start of a comment line.
@@ -154,7 +180,8 @@ require('browse').setup({
 
 The main entry point is the `require('browse').browse()` Lua function. This opens a Telescope window with the following options:
 
-- **Bookmarks Search**: Search through your configured bookmarks.
+- **Manual Bookmarks**: Search through your bookmarks from your config and files.
+- **Browser Bookmarks**: Search through bookmarks imported from your web browsers.
 - **Devdocs Search**: Search for queries on devdocs.io.
 - **Devdocs Search with filetype**: Search DevDocs, automatically using the current buffer's filetype as a filter.
 - **Input Search**: Enter a query to search with your default search provider.
@@ -167,7 +194,8 @@ Text selected in visual mode will be used as the initial query for searches.
 By default, `browse.nvim` creates several commands for you. You can disable this by setting `create_commands = false` in your setup.
 
 - `:Browse`: Opens the main Telescope picker to select a search type.
-- `:BrowseBookmarks`: Opens the Telescope picker directly to your bookmarks.
+- `:BrowseManualBookmarks`: Opens the Telescope picker directly to your manual bookmarks.
+- `:BrowseBrowserBookmarks`: Opens the Telescope picker directly to your browser bookmarks.
 - `:BrowseSearch`: Prompts for input and searches using your configured `provider`.
 - `:DevdocsSearch`: Prompts for input and searches on devdocs.io.
 - `:DevdocsFiletypeSearch`: Prompts for input and searches on devdocs.io, using the current buffer's filetype.
@@ -179,9 +207,11 @@ All public functions are available under the `require('browse')` module.
 
 - `browse.setup({opts})`: Configures the plugin. See [Configuration](#configuration).
 
-- `browse.browse({opts})`: Opens the main Telescope picker to select a search type. You can optionally pass a `bookmarks` table to this function to provide temporary bookmarks for this session only.
+- `browse.browse({opts})`: Opens the main Telescope picker to select a search type.
 
-- `browse.open_bookmarks({opts})`: Opens the Telescope picker directly to your bookmarks. You can optionally pass a `bookmarks` table here as well.
+- `browse.open_manual_bookmarks({opts})`: Opens the Telescope picker directly to your manual bookmarks (from config and files).
+
+- `browse.open_browser_bookmarks({opts})`: Opens the Telescope picker directly to your browser bookmarks.
 
 - `browse.input_search()`: Prompts for input and searches using the configured `provider`.
 
@@ -190,66 +220,6 @@ All public functions are available under the `require('browse')` module.
 - `browse.devdocs.search_with_filetype()`: Prompts for input and searches on devdocs.io, using the current buffer's filetype to narrow the search.
 
 - `browse.mdn.search()`: Prompts for input and searches on MDN Web Docs.
-
-## Bookmarks
-
-`browse.nvim` can aggregate bookmarks from three sources: a Lua table, external files, and your web browser's bookmarks.
-
-### Lua Table
-
-You can define bookmarks directly in your `setup()` call or pass them to the `browse()` or `open_bookmarks()` functions. The table can have several formats:
-
-1.  **Simple list of URLs**:
-    ```lua
-    bookmarks = {
-        "https://neovim.io",
-        "https://github.com/nvim-telescope/telescope.nvim",
-    }
-    ```
-
-2.  **Aliases for URLs** (name = URL):
-    ```lua
-    bookmarks = {
-        neovim = "https://neovim.io",
-        telescope = "https://github.com/nvim-telescope/telescope.nvim",
-    }
-    ```
-    If the URL contains `%s`, it will be treated as a search query, and you will be prompted for input.
-    ```lua
-    bookmarks = {
-        gh_search = "https://github.com/search?q=%s",
-    }
-    ```
-
-3.  **Grouped bookmarks**:
-    You can create nested tables to group related bookmarks.
-    ```lua
-    bookmarks = {
-        neovim = {
-            name = "Neovim Resources", -- Optional display name for the group
-            website = "https://neovim.io",
-            discourse = "https://neovim.discourse.group/",
-        },
-    }
-    ```
-
-### External Files
-
-Use the `bookmark_files` option to specify a list of files to load bookmarks from. The following formats are supported:
-
-- `json`: Standard JSON format.
-- `yaml`: YAML format.
-- `toml`: TOML format.
-- `txt`: A plain text file where each line is a bookmark. The format can be `name: url` or just `url`. Use the `plain_text` config table to customize delimiters and comments.
-
-### Browser Bookmarks
-
-Set `browser_bookmarks.enabled = true` to import bookmarks from your installed web browsers.
-
-- `enabled` (boolean): Master switch to enable/disable this feature.
-- `browsers` (table): A table of booleans to control which browsers to import from (e.g., `{ chrome = true, firefox = false }`).
-- `auto_detect` (boolean): If `true`, the plugin will try to find installed browsers and enable them automatically if they are not explicitly set in the `browsers` table.
-- `group_by_folder` (boolean): If `true`, bookmarks will be nested in the picker according to the folder structure in your browser.
 
 ## Bookmarks
 
