@@ -35,6 +35,7 @@ jobs:
           # Only commit and push if there are actual changes
           if ! git diff --staged --quiet; then
             git commit -m "docs: auto-generate helptags"
+            git pull --rebase
             git push
           else
             echo "No changes to commit."
