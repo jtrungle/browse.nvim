@@ -147,15 +147,24 @@ Text selected in visual mode will be used as the initial query for searches.
 
 ### Commands
 
-By default, `browse.nvim` creates several commands for you. You can disable this by setting `create_commands = false` in your setup.
+If `create_commands = true` (the default), the plugin will create the `:Browse` command.
 
-- `:Browse`: Opens the main Telescope picker to select a search type.
-- `:BrowseManualBookmarks`: Opens the Telescope picker directly to your manual bookmarks.
-- `:BrowseBrowserBookmarks`: Opens the Telescope picker directly to your browser bookmarks.
-- `:BrowseSearch`: Prompts for input and searches using your configured `provider`.
-- `:DevdocsSearch`: Prompts for input and searches on devdocs.io.
-- `:DevdocsFiletypeSearch`: Prompts for input and searches on devdocs.io, using the current buffer's filetype.
-- `:MdnSearch`: Prompts for input and searches on MDN Web Docs.
+```vim
+:Browse <subcommand>
+```
+
+If no subcommand is provided, the main selection menu will open. All subcommands support visual mode selection to pre-fill the search query.
+
+| Subcommand | Action |
+| --- | --- |
+| `input` | Opens the input search to query with your default provider. |
+| `mdn` | Searches the MDN Web Docs. |
+| `mdn_ft` | Searches MDN, including the current buffer's filetype. |
+| `devdocs` | Searches devdocs.io. |
+| `devdocs_ft` | Searches DevDocs, including the current buffer's filetype. |
+| `bookmarks` | Opens a picker to select a bookmark source. |
+| `bookmarks_manual` | Opens your manual bookmarks directly. |
+| `bookmarks_browser` | Opens your browser bookmarks directly. |
 
 ### API
 

@@ -103,22 +103,47 @@ local M = {
     mdn = mdn,
 }
 
+function M._command_dispatcher(args)
+    local subcommand = args[1]
+    if subcommand == nil then
+        M.browse()
+    elseif subcommand == "input" then
+        M.input_search()
+    elseif subcommand == "mdn" then
+        M.mdn.search()
+    elseif subcommand == "mdn_ft" then
+        M.mdn.search_with_filetype()
+    elseif subcommand == "devdocs" then
+        M.devdocs.search()
+    elseif subcommand == "devdocs_ft" then
+        M.devdocs.search_with_filetype()
+    elseif subcommand == "bookmarks" then
+        M.browse({
+            finder = finders.new_table({
+                results = {
+                    { "Manual Bookmarks", "manual_bookmarks" },
+                    { "Browser Bookmarks", "browser_bookmarks" },
+                },
+            }),
+        })
+    elseif subcommand == "bookmarks_manual" then
+        M.open_manual_bookmarks()
+    elseif subcommand == "bookmarks_browser" then
+        M.open_browser_bookmarks()
+    else
+        vim.notify("Unknown browse.nvim subcommand: " .. subcommand, vim.log.levels.ERROR)
+    end
+end
+
 function M.setup(opts)
     defaults.setup(opts)
 
     if defaults.opts.create_commands then
-        local function command(name, rhs, cmd_opts)
-            cmd_opts = cmd_opts or {}
-            vim.api.nvim_create_user_command(name, rhs, cmd_opts)
-        end
-
-        command("Browse", function() M.browse() end, {})
-        command("BrowseManualBookmarks", function() M.open_manual_bookmarks() end, {})
-        command("BrowseBrowserBookmarks", function() M.open_browser_bookmarks() end, {})
-        command("BrowseSearch", function() M.input_search() end, {})
-        command("DevdocsSearch", function() M.devdocs.search() end, {})
-        command("DevdocsFiletypeSearch", function() M.devdocs.search_with_filetype() end, {})
-        command("MdnSearch", function() M.mdn.search() end, {})
+        vim.api.nvim_create_user_command(
+            "Browse",
+            function(args) M._command_dispatcher(args.fargs) end,
+            { nargs = "*", complete = "custom,v:lua.require'browse.utils'.command_completer" }
+        )
     end
 end
 

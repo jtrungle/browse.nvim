@@ -163,4 +163,20 @@ function M.get_theme(picker_name)
     return theme_func(theme_opts)
 end
 
+function M.command_completer(arglead, cmdline, cursorpos)
+    local subcommands = {
+        "input",
+        "mdn",
+        "mdn_ft",
+        "devdocs",
+        "devdocs_ft",
+        "bookmarks",
+        "bookmarks_manual",
+        "bookmarks_browser",
+    }
+    return vim.tbl_filter(function(subcommand)
+        return vim.startswith(subcommand, arglead)
+    end, subcommands)
+end
+
 return M

@@ -7,4 +7,9 @@ M.search = utils.format_search(
     { prompt = "MDN search:" }
 )
 
+M.search_with_filetype = utils.format_search(
+    "https://developer.mozilla.org/en-US/search?q=" .. vim.bo.filetype .. " %s",
+    { prompt = "MDN filetype search:" }
+)
+
 return M

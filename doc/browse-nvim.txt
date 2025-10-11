@@ -1,4 +1,4 @@
-*browse-nvim.txt*    For Neovim version 0.7.0 and higher.    Last change: 2025 Oct 10
+*browse-nvim.txt*    For Neovim version 0.7.0 and higher.    Last change: 2025 Oct 12
 *browse-nvim*
 
 ==============================================================================
@@ -44,31 +44,40 @@ Text selected in visual mode will be used as the initial query for searches.
 ==============================================================================
 COMMANDS                                        *browse-nvim-commands*
 
-The plugin does not create any commands by default. You can create them
-yourself for easier access.
+The main entry point is the |:Browse| command, which can be called with or
+without a subcommand.
 
-Example:
->lua
-    vim.api.nvim_create_user_command("Browse", function()
-        require("browse").browse()
-    end, {})
-
-    vim.api.nvim_create_user_command("BrowseBookmarks", function()
-        require("browse").open_bookmarks()
-    end, {})
-
-    vim.api.nvim_create_user_command("BrowseSearch", function()
-        require("browse").input_search()
-    end, {})
-
-    vim.api.nvim_create_user_command("DevdocsSearch", function()
-        require("browse.devdocs").search()
-    end, {})
-
-    vim.api.nvim_create_user_command("MdnSearch", function()
-        require("browse.mdn").search()
-    end, {})
+>vim
+:Browse <subcommand>
 <
+
+If no subcommand is provided, the main selection menu will open.
+
+*Subcommands:*
+
+`input`
+    Opens the input search to query with your default provider.
+
+`mdn`
+    Searches the MDN Web Docs.
+
+`mdn_ft`
+    Searches MDN, including the current buffer's filetype in the query.
+
+`devdocs`
+    Searches devdocs.io.
+
+`devdocs_ft`
+    Searches DevDocs, including the current buffer's filetype in the query.
+
+`bookmarks`
+    Opens a picker to select a bookmark source (manual or browser).
+
+`bookmarks_manual`
+    Opens your manual bookmarks directly.
+
+`bookmarks_browser`
+    Opens your browser bookmarks directly.
 
 ==============================================================================
 CONFIGURATION                                 *browse-nvim-configuration*
