@@ -41,3 +41,8 @@ luac.out
 
 # .gemini
 .gemini/
+
+# AI, Feature, and Recording Notes
+GEMINI.md
+FEATURES.md
+RECORDING_NOTES.md
