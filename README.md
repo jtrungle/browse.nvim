@@ -8,7 +8,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/lalitmee/browse.nvim/ci.yml?label=Tests&style=for-the-badge)](https://github.com/lalitmee/browse.nvim/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/lalitmee/browse.nvim?color=%23FFC600&style=for-the-badge)](https://github.com/lalitmee/browse.nvim/blob/main/LICENSE)
 
-![browse.nvim](https://github.com/user-attachments/assets/2e0395f6-90e5-4698-aa76-0420033f4b5d)
+<video src="https://github.com/user-attachments/assets/2e0395f6-90e5-4698-aa76-0420033f4b5d" controls></video>
 
 </div>
 
@@ -24,16 +24,16 @@ sites like DevDocs and MDN.
 <summary>🎥 Click here to see features in action!</summary>
 
 ### Unified Command System
-![Commands](https://github.com/user-attachments/assets/b3fe3bde-ae95-48d4-b1a3-3c5895693e13)
+<video src="https://github.com/user-attachments/assets/44112cd1-6209-4282-9d50-7aa1dba81d0f" controls></video>
 
 ### Unified Bookmark Search
-![Unified Bookmarks](https://github.com/user-attachments/assets/617b8ba9-9cbf-473d-978e-1fa6f92cd439)
+<video src="https://github.com/user-attachments/assets/cb071e3a-7133-4328-beca-47c649352772" controls></video>
 
-### Docs Filetype Search
-![Docs Filetype Search](https://github.com/user-attachments/assets/4cd5ffaa-01ff-4396-ad77-7ccfe0041cb0)
+### Filetype Docs Search
+<video src="https://github.com/user-attachments/assets/1720126e-c460-4917-82f8-89988e0fccf6" controls></video>
 
-### Visual Mode Search
-![Visual Mode Search](https://github.com/user-attachments/assets/6693ff2c-374c-47df-81db-03f452d37b9f)
+### Improved Nested Navigation
+<video src="https://github.com/user-attachments/assets/77cf8be6-591b-4f99-8ca0-08093336be96" controls></video>
 
 </details>
 
