@@ -10,12 +10,9 @@ local search_input = require("browse.input").search_input
 local devdocs = require("browse.devdocs")
 local mdn = require("browse.mdn")
 local defaults = require("browse.config")
-local get_visual_text = require("browse.utils").get_visual_text
 
 local browse = function(config)
     config = config or {}
-
-    local visual_text = get_visual_text()
     local utils = require("browse.utils")
 
     local theme = utils.get_theme("browse")
@@ -82,20 +79,16 @@ end
 
 local M = {
     browse = browse,
-    input_search = function()
-        search_input(get_visual_text())
-    end,
+    input_search = search_input,
     open_manual_bookmarks = function(config)
         config = config or {}
         config.source = "manual"
-        config.visual_text = get_visual_text()
         config.cache_picker = { num_pickers = defaults.opts.cache_pickers }
         search_bookmarks(config)
     end,
     open_browser_bookmarks = function(config)
         config = config or {}
         config.source = "browser"
-        config.visual_text = get_visual_text()
         config.cache_picker = { num_pickers = defaults.opts.cache_pickers }
         search_bookmarks(config)
     end,
@@ -103,29 +96,41 @@ local M = {
     mdn = mdn,
 }
 
+function M._get_visual_selection()
+    local _, start_row, start_col, _ = unpack(vim.fn.getpos("'<"))
+    local _, end_row, end_col, _ = unpack(vim.fn.getpos("'>"))
+    if start_row > end_row or (start_row == end_row and start_col > end_col) then
+        start_row, end_row = end_row, start_row
+        start_col, end_col = end_col, start_col
+    end
+    local lines = vim.api.nvim_buf_get_lines(0, start_row - 1, end_row, false)
+    if #lines == 0 then return "" end
+    lines[#lines] = string.sub(lines[#lines], 1, end_col)
+    lines[1] = string.sub(lines[1], start_col)
+    return table.concat(lines, "\n")
+end
+
 function M._command_dispatcher(args)
-    local subcommand = args[1]
+    local subcommand = args.fargs[1]
+    local visual_text = ""
+    if args.range > 0 then
+        visual_text = M._get_visual_selection()
+    end
+
     if subcommand == nil then
         M.browse()
     elseif subcommand == "input" then
-        M.input_search()
+        M.input_search(visual_text)
     elseif subcommand == "mdn" then
-        M.mdn.search()
+        M.mdn.search(visual_text)
     elseif subcommand == "mdn_ft" then
-        M.mdn.search_with_filetype()
+        M.mdn.search_with_filetype(visual_text)
     elseif subcommand == "devdocs" then
-        M.devdocs.search()
+        M.devdocs.search(visual_text)
     elseif subcommand == "devdocs_ft" then
-        M.devdocs.search_with_filetype()
+        M.devdocs.search_with_filetype(visual_text)
     elseif subcommand == "bookmarks" then
-        M.browse({
-            finder = finders.new_table({
-                results = {
-                    { "Manual Bookmarks", "manual_bookmarks" },
-                    { "Browser Bookmarks", "browser_bookmarks" },
-                },
-            }),
-        })
+        require("browse.bookmarks").search_bookmarks({ source = "all", visual_text = visual_text })
     elseif subcommand == "bookmarks_manual" then
         M.open_manual_bookmarks()
     elseif subcommand == "bookmarks_browser" then
@@ -141,8 +146,8 @@ function M.setup(opts)
     if defaults.opts.create_commands then
         vim.api.nvim_create_user_command(
             "Browse",
-            function(args) M._command_dispatcher(args.fargs) end,
-            { nargs = "*", complete = "custom,v:lua.require'browse.utils'.command_completer" }
+            function(args) M._command_dispatcher(args) end,
+            { nargs = "*", range = true, complete = "customlist,v:lua.require'browse.utils'.command_completer" }
         )
     end
 end

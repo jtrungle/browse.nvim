@@ -109,16 +109,6 @@ M.format_search = function(format, opts)
     end
 end
 
--- get selected text from visual mode (via a temp register)
-M.get_visual_text = function()
-    local reg_bak = vim.fn.getreg("v")
-    vim.fn.setreg("v", {})
-    vim.cmd([[noau normal! "vy\<esc\>]])
-    local sel_text = vim.fn.getreg("v")
-    vim.fn.setreg("v", reg_bak)
-    return string.gsub(sel_text, "\n", "")
-end
-
 --Get the domain of a URL
 --Example: https://obsidian.md => obsidian.md
 ---@param url string: URL to which your domain will be extracted
