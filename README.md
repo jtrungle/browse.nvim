@@ -39,7 +39,7 @@ sites like DevDocs and MDN.
 
 ## Installation
 
-- [lazy.nvim](https://github.com/folke/lazy.nvim)
+- Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
   ```lua
   {
@@ -51,32 +51,22 @@ sites like DevDocs and MDN.
   }
   ```
 
-- [packer.nvim](https://github.com/wbthomason/packer.nvim)
-
-  ```lua
-  use({
-      "lalitmee/browse.nvim",
-      requires = { "nvim-telescope/telescope.nvim" },
-  })
-  ```
-
-- [vim-plug](https://github.com/junegunn/vim-plug)
-
-  ```vim
-  Plug 'nvim-telescope/telescope.nvim'
-  Plug 'lalitmee/browse.nvim'
-  ```
-
 ## Configuration
-
-Call the `setup` function to configure the plugin.
 
 Here is the default configuration:
 ```lua
 require('browse').setup({
+    -- The default search provider for `input_search()`.
+    -- Values: "google", "duckduckgo", "bing", "brave".
     provider = "google",
+
+    -- A Lua table containing your bookmarks.
     bookmarks = {},
+
+    -- A list of absolute paths to external bookmark files.
     bookmark_files = {},
+
+    -- Configuration for importing bookmarks from web browsers.
     browser_bookmarks = {
         enabled = false,
         browsers = {
@@ -88,19 +78,33 @@ require('browse').setup({
         group_by_folder = true,
         auto_detect = true,
     },
+
+    -- If `true`, duplicate bookmark URLs from all sources will be removed.
     deduplicate_bookmarks = true,
+
+    -- If `true`, bookmarks loaded from files and browsers will be cached to improve performance.
     cache_bookmarks = true,
+
+    -- The duration in seconds for which the bookmark cache is valid.
     cache_duration = 60,
-    create_commands = true, -- Creates default user commands
+
+    -- If `true`, the plugin will create default user commands for you.
+    create_commands = true,
+
+    -- A table to configure the Telescope theme for each picker.
     themes = {
         browse = "dropdown",
         manual_bookmarks = "dropdown",
         browser_bookmarks = nil, -- nil uses the default Telescope theme
     },
+
+    -- Configuration for parsing plain text (`.txt`) bookmark files.
     plain_text = {
         delimiters = { ":", "=" },
         comment_chars = { "#", ";" },
     },
+
+    -- Customize the icons used in the Telescope pickers.
     icons = {
         bookmark_alias = "->",
         bookmarks_prompt = "",
@@ -108,83 +112,25 @@ require('browse').setup({
         file_bookmark = "📄",
         browser_bookmark = "🌐",
     },
+
+    -- If `true`, the search query is preserved when you navigate into a nested bookmark group.
     persist_grouped_bookmarks_query = false,
+
+    -- Configuration for the bookmark picker.
     bookmark_picker = {
+        -- If `true`, nested bookmarks are displayed in a nested structure.
+        -- If `false`, all bookmarks are shown in a flat list.
         show_nested = true,
     },
+
+    -- The number of Telescope pickers to cache, enabling back-navigation.
     cache_pickers = 10,
+
+    -- If `true`, bookmark results are sorted alphabetically.
+    -- If `false`, they are displayed in the order they were defined.
     sort_results = true,
 })
 ```
-
-### Options
-
-- `provider` (string): The default search provider for `input_search()`.
-  - **Default**: `"google"`
-  - **Values**: `"google"`, `"duckduckgo"`, `"bing"`, `"brave"`.
-
-- `bookmarks` (table): A Lua table containing your bookmarks. See [Bookmarks](#bookmarks) for the detailed structure.
-  - **Default**: `{}`
-
-- `bookmark_files` (table): A list of absolute paths to external bookmark files.
-  - **Default**: `{}`
-
-- `browser_bookmarks` (table): Configuration for importing bookmarks from web browsers.
-  - **Default**: `{ enabled = false, ... }`
-
-- `deduplicate_bookmarks` (boolean): If `true`, duplicate bookmark URLs from all sources will be removed.
-  - **Default**: `true`
-
-- `cache_bookmarks` (boolean): If `true`, bookmarks loaded from files and browsers will be cached to improve performance.
-  - **Default**: `true`
-
-- `cache_duration` (number): The duration in seconds for which the bookmark cache is valid.
-  - **Default**: `60`
-
-- `create_commands` (boolean): If `true`, the plugin will create default user commands for you.
-  - **Default**: `true`
-
-- `themes` (table): A table to configure the Telescope theme for each picker.
-  - For simple use, the value can be a string corresponding to a Telescope theme (e.g., `"dropdown"`, `"cursor"`, `"ivy"`).
-  - For advanced use, the value can be a table in the format `{ "theme_name", { theme_options } }`.
-  - If the value is `nil`, the default Telescope UI will be used.
-  - **Default**:
-    ```lua
-    themes = {
-        browse = "dropdown",
-        manual_bookmarks = "dropdown",
-        browser_bookmarks = nil,
-    }
-    ```
-  - **Advanced Example**:
-    ```lua
-    themes = {
-        browse = { "dropdown", { winblend = 10, height = 25 } },
-        manual_bookmarks = "cursor",
-        browser_bookmarks = nil, -- Use default Telescope theme
-    }
-    ```
-
-- `plain_text` (table): Configuration for parsing plain text (`.txt`) bookmark files.
-  - `delimiters` (table): Characters used to separate a bookmark's name from its URL.
-  - `comment_chars` (table): Characters that signify the start of a comment line.
-  - **Default**: `{ delimiters = {":", "="}, comment_chars = {"#", ";"} }`
-
-- `icons` (table): Customize the icons used in the Telescope pickers.
-  - **Default**: `{ bookmark_alias = "->", ... }`
-
-- `persist_grouped_bookmarks_query` (boolean): If `true`, the search query is preserved when you navigate into a nested bookmark group.
-  - **Default**: `false`
-
-- `bookmark_picker` (table): Configuration for the bookmark picker.
-  - `show_nested` (boolean): If `true`, nested bookmarks are displayed in a nested structure. If `false`, all bookmarks are shown in a flat list.
-  - **Default**: `{ show_nested = true }`
-
-- `cache_pickers` (number): The number of Telescope pickers to cache, enabling back-navigation.
-  - **Default**: `10`
-
-- `sort_results` (boolean): If `true`, bookmark results are sorted alphabetically. If `false`, they are displayed in the order they were defined.
-  - **Default**: `true`
 
 ## Usage
 
