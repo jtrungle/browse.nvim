@@ -62,6 +62,10 @@ M.opts = {
 
     persist_grouped_bookmarks_query = false,
 
+    bookmark_picker = {
+        show_nested = true,
+    },
+
     -- Telescope options
     cache_pickers = 10,
     sort_results = true,

@@ -106,6 +106,9 @@ require('browse').setup({
         browser_bookmark = "🌐",
     },
     persist_grouped_bookmarks_query = false,
+    bookmark_picker = {
+        show_nested = true,
+    },
     cache_pickers = 10,
     sort_results = true,
 })
@@ -169,6 +172,10 @@ require('browse').setup({
 
 - `persist_grouped_bookmarks_query` (boolean): If `true`, the search query is preserved when you navigate into a nested bookmark group.
   - **Default**: `false`
+
+- `bookmark_picker` (table): Configuration for the bookmark picker.
+  - `show_nested` (boolean): If `true`, nested bookmarks are displayed in a nested structure. If `false`, all bookmarks are shown in a flat list.
+  - **Default**: `{ show_nested = true }`
 
 - `cache_pickers` (number): The number of Telescope pickers to cache, enabling back-navigation.
   - **Default**: `10`

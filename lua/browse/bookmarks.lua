@@ -11,15 +11,69 @@ local bookmark_manager = require("browse.bookmark_manager")
 
 local M = {}
 
+local function flatten_bookmarks(bookmarks)
+    local flat_list = {}
+    for k, v in pairs(bookmarks) do
+        if k ~= "name" then
+            if type(v) == "table" and v.url == nil then -- It's a group
+                local nested_bookmarks = flatten_bookmarks(v)
+                for _, nested_v in ipairs(nested_bookmarks) do
+                    table.insert(flat_list, nested_v)
+                end
+            else -- It's a bookmark
+                if type(k) == "string" then
+                    table.insert(flat_list, { k, v })
+                else
+                    table.insert(flat_list, v)
+                end
+            end
+        end
+    end
+    return flat_list
+end
+
+function M.get_bookmark_entries(bookmarks, show_nested, level)
+    local bookmarks_list = {}
+    local bookmarks_copy = vim.deepcopy(bookmarks)
+
+    if not show_nested then
+        bookmarks_copy = flatten_bookmarks(bookmarks_copy)
+    end
+
+    if level > 0 then
+        table.insert(bookmarks_list, { "<- Back", "back" })
+    end
+
+    if not show_nested then
+        for _, v in ipairs(bookmarks_copy) do
+            table.insert(bookmarks_list, v)
+        end
+    else
+        for k, v in pairs(bookmarks_copy) do
+            if type(k) == "string" then
+                table.insert(bookmarks_list, { k, v })
+            else
+                table.insert(bookmarks_list, v)
+            end
+        end
+    end
+
+    return bookmarks_list
+end
+
 M.search_bookmarks = function(config)
     config = config or {}
+
     local level = config.level or 0
     local source = config.source or "manual"
     local icons = config["icons"] or defaults.opts["icons"] or {}
-    local persist_grouped_bookmarks_query = defaults.opts.persist_grouped_bookmarks_query
+    local persist_grouped_bookmarks_query =
+        defaults.opts.persist_grouped_bookmarks_query
+    local show_nested = defaults.opts.bookmark_picker.show_nested
 
     -- Use bookmark manager based on the source
     local bookmarks
+
     if config["bookmarks"] and not vim.tbl_isempty(config["bookmarks"]) then
         bookmarks = config["bookmarks"]
     elseif source == "browser" then
@@ -29,25 +83,11 @@ M.search_bookmarks = function(config)
     end
 
     local visual_text = config["visual_text"]
-    local bookmarks_copy = vim.deepcopy(bookmarks)
-
-    local picker_name = source == "browser" and "browser_bookmarks" or "manual_bookmarks"
+    local bookmarks_list = M.get_bookmark_entries(bookmarks, show_nested, level)
+    local picker_name = source == "browser" and "browser_bookmarks"
+        or "manual_bookmarks"
     local theme = utils.get_theme(picker_name)
     local opts = vim.tbl_deep_extend("force", config, theme or {})
-
-    local bookmarks_list = {}
-
-    if level > 0 then
-        table.insert(bookmarks_list, { "<- Back", "back" })
-    end
-
-    for k, v in pairs(bookmarks_copy) do
-        if type(k) == "string" then
-            table.insert(bookmarks_list, { k, v })
-        else
-            table.insert(bookmarks_list, v)
-        end
-    end
 
     local function count_items(tbl)
         local count = 0
@@ -81,25 +121,46 @@ M.search_bookmarks = function(config)
                 display = entry[1]
                 ordinal = "back"
             elseif type(entry) == "table" and type(entry[2]) ~= "table" then
-                if type(name) ~= "string" then name = "" end
-                local formatted_name = string.format("%-" .. max_len .. "s", name)
+                if type(name) ~= "string" then
+                    name = ""
+                end
+                local formatted_name =
+                    string.format("%-" .. max_len .. "s", name)
                 value = entry[2]
 
                 if type(value) == "table" and value.url then -- It's a browser bookmark
                     local icon = icons[value.source] or icons.default_browser
-                    display = icon .. " " .. formatted_name .. " " .. icons.bookmark_alias .. " " .. value.url
+                    display = icon
+                        .. " "
+                        .. formatted_name
+                        .. " "
+                        .. icons.bookmark_alias
+                        .. " "
+                        .. value.url
                     ordinal = name .. value.url
                 else -- It's a regular bookmark
-                    display = formatted_name .. " " .. icons.bookmark_alias .. " " .. value
+                    display = formatted_name
+                        .. " "
+                        .. icons.bookmark_alias
+                        .. " "
+                        .. value
                     ordinal = name .. value
                 end
             elseif type(entry) == "table" and type(entry[2]) == "table" then
-                if type(name) ~= "string" then name = "" end
-                local formatted_name = string.format("%-" .. max_len .. "s", name)
+                if type(name) ~= "string" then
+                    name = ""
+                end
+                local formatted_name =
+                    string.format("%-" .. max_len .. "s", name)
                 local group_table = entry[2]
                 local count = count_items(group_table)
                 local group_name = group_table.name or entry[1] -- Use inner name or fall back to key
-                display = formatted_name .. " -> " .. group_name .. " (" .. count .. ")"
+                display = formatted_name
+                    .. " -> "
+                    .. group_name
+                    .. " ("
+                    .. count
+                    .. ")"
                 ordinal = entry[1]
                 value = group_table
             end
@@ -132,7 +193,9 @@ M.search_bookmarks = function(config)
         sorter = conf.generic_sorter(opts)
     else
         sorter = conf.generic_sorter(opts)
-        sorter.tiebreak = function() return false end
+        sorter.tiebreak = function()
+            return false
+        end
     end
 
     local prompt_title = icons.bookmarks_prompt .. "Bookmarks"
@@ -147,7 +210,7 @@ M.search_bookmarks = function(config)
             prompt_title = prompt_title,
             finder = create_finder(),
             sorter = sorter,
-            attach_mappings = function(prompt_bufnr, _) 
+            attach_mappings = function(prompt_bufnr, _)
                 actions.select_default:replace(function()
                     local selection = action_state.get_selected_entry()
                     if not selection then
@@ -159,7 +222,10 @@ M.search_bookmarks = function(config)
                     actions.close(prompt_bufnr)
 
                     if value == "back" then
-                        require("telescope.builtin").resume({ cache_index = 2, default_text = "" })
+                        require("telescope.builtin").resume({
+                            cache_index = 2,
+                            default_text = "",
+                        })
                     elseif type(value) == "table" then
                         -- copy table to avoid mutation
                         local tbl_copy = vim.deepcopy(value)
@@ -183,8 +249,12 @@ M.search_bookmarks = function(config)
 
                         -- search bookmarks with the new list
                         M.search_bookmarks(search_bookmarks_opts)
-                    elseif type(value) == "string" or (type(value) == "table" and value.url) then
-                        local url = type(value) == "string" and value or value.url
+                    elseif
+                        type(value) == "string"
+                        or (type(value) == "table" and value.url)
+                    then
+                        local url = type(value) == "string" and value
+                            or value.url
                         -- checking for `%%` in the url
                         if string.match(url, "%%") then
                             utils.format_search(

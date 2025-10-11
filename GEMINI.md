@@ -60,6 +60,7 @@ This document provides essential context for AI models interacting with this pro
 * **Contribution Guidelines:** No formal `CONTRIBUTING.md` exists. However, based on the project structure and existing code, contributions should:
     - Follow the existing code style and formatting.
     - Add tests for new features in the `/tests` directory.
+    - Add documentation for new features in the `doc/browse-nvim.txt` file.
     - Maintain backward compatibility.
 * **Infrastructure (IaC):** Not applicable.
 * **Security:** Be mindful of security when dealing with shell commands for opening browsers. Ensure proper escaping of URLs and search queries to prevent command injection vulnerabilities. The `utils.lua` module is critical for this.
