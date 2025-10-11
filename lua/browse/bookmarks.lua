@@ -11,6 +11,8 @@ local bookmark_manager = require("browse.bookmark_manager")
 
 local M = {}
 
+local bookmark_history = {}
+
 local function flatten_bookmarks(bookmarks)
     local flat_list = {}
     for k, v in pairs(bookmarks) do
@@ -80,6 +82,12 @@ M.search_bookmarks = function(config)
         bookmarks = bookmark_manager.get_browser_bookmarks()
     else
         bookmarks = bookmark_manager.get_manual_bookmarks()
+    end
+
+    if level == 0 then
+        bookmark_history = { bookmarks }
+    else
+        table.insert(bookmark_history, bookmarks)
     end
 
     local visual_text = config["visual_text"]
@@ -222,10 +230,23 @@ M.search_bookmarks = function(config)
                     actions.close(prompt_bufnr)
 
                     if value == "back" then
-                        require("telescope.builtin").resume({
-                            cache_index = 2,
-                            default_text = "",
-                        })
+                        if persist_grouped_bookmarks_query then
+                            require("telescope.builtin").resume({
+                                cache_index = 2,
+                                default_text = action_state.get_current_line(),
+                            })
+                        else
+                            table.remove(bookmark_history)
+                            local parent_bookmarks = table.remove(bookmark_history)
+                            M.search_bookmarks({
+                                bookmarks = parent_bookmarks,
+                                visual_text = visual_text,
+                                level = level - 1,
+                                cache_picker = opts.cache_picker,
+                                source = source,
+                                default_text = "",
+                            })
+                        end
                     elseif type(value) == "table" then
                         -- copy table to avoid mutation
                         local tbl_copy = vim.deepcopy(value)

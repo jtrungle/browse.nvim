@@ -204,20 +204,51 @@ M.create_sample_chrome_bookmarks = function()
     }
 end
 
+
+local current_picker = { input = "", selected_entry = nil, picker_opts = nil }
+
+M.set_picker_input = function(text)
+    current_picker.input = text
+end
+
+M.get_picker_input = function()
+    return current_picker.input
+end
+
+M.select_entry_by_value = function(value)
+    local results = current_picker.picker_opts.finder.results
+    for _, entry in ipairs(results) do
+        if type(entry) == "table" and entry[2] == value then
+            current_picker.selected_entry = { value = entry[2], ordinal = entry[1] }
+            break
+        elseif type(entry) == "table" and type(entry[2]) == "table" and entry[1] == value then
+            current_picker.selected_entry = { value = entry[2], ordinal = entry[1] }
+            break
+        end
+    end
+    current_picker.picker_opts.attach_mappings(1, 1)
+end
+
 -- Mock telescope for testing
 M.mock_telescope = function()
     local telescope = {
         pickers = {
             new = function(opts, picker_opts)
+                current_picker.picker_opts = picker_opts
+                if opts and opts.default_text then
+                    current_picker.input = opts.default_text
+                else
+                    current_picker.input = ""
+                end
                 return {
-                    find = function() end
+                    find = function() end,
                 }
-            end
+            end,
         },
         finders = {
             new_table = function(opts)
                 return opts
-            end
+            end,
         },
         themes = {
             get_dropdown = function(opts)
@@ -233,26 +264,32 @@ M.mock_telescope = function()
         actions = {
             close = function() end,
             select_default = {
-                replace = function() end
-            }
+                replace = function(self, fn)
+                    fn()
+                end,
+            },
         },
         action_state = {
             get_selected_entry = function()
-                return { value = "test", ordinal = "test" }
+                return current_picker.selected_entry
             end,
             get_current_line = function()
-                return "test query"
-            end
-        }
+                return current_picker.input
+            end,
+        },
+        builtin = {
+            resume = function() end,
+        },
     }
-    
+
     package.loaded["telescope.pickers"] = telescope.pickers
     package.loaded["telescope.finders"] = telescope.finders
     package.loaded["telescope.themes"] = telescope.themes
     package.loaded["telescope.actions"] = telescope.actions
     package.loaded["telescope.actions.state"] = telescope.action_state
     package.loaded["telescope.config"] = { values = { generic_sorter = function() end } }
-    
+    package.loaded["telescope.builtin"] = telescope.builtin
+
     return telescope
 end
 
