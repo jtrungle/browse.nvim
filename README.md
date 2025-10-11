@@ -32,8 +32,8 @@ sites like DevDocs and MDN.
 ### Filetype Docs Search
 <video src="https://github.com/user-attachments/assets/1720126e-c460-4917-82f8-89988e0fccf6" controls></video>
 
-### Improved Nested Navigation
-<video src="https://github.com/user-attachments/assets/77cf8be6-591b-4f99-8ca0-08093336be96" controls></video>
+### Visual Mode Search
+<video src="https://github.com/user-attachments/assets/6693ff2c-374c-47df-81db-03f452d37b9f" controls></video>
 
 </details>
 
