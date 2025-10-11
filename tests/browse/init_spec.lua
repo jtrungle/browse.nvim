@@ -26,7 +26,7 @@ describe("browse.init", function()
         assert.is_not_nil(command_created)
         assert.are.equal("Browse", command_created.name)
         assert.are.equal("*", command_created.opts.nargs)
-        assert.are.equal("custom,v:lua.require'browse.utils'.command_completer", command_created.opts.complete)
+        assert.are.equal("customlist,v:lua.require'browse.utils'.command_completer", command_created.opts.complete)
     end)
 
     it("should NOT create commands when disabled", function()

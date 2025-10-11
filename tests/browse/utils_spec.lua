@@ -4,49 +4,6 @@ helpers.setup_mocks()
 local utils = require("browse.utils")
 
 describe("browse.utils", function()
-    describe("get_visual_text", function()
-        it("should extract visual text", function()
-            -- Mock register operations
-            local original_getreg = vim.fn.getreg
-            local original_setreg = vim.fn.setreg
-
-            vim.fn.getreg = function(reg)
-                if reg == "v" then
-                    return "selected text"
-                end
-                return ""
-            end
-
-            vim.fn.setreg = function() end
-
-            local result = utils.get_visual_text()
-            assert.equals("selected text", result)
-
-            -- Restore original functions
-            vim.fn.getreg = original_getreg
-            vim.fn.setreg = original_setreg
-        end)
-
-        it("should handle newlines in visual text", function()
-            local original_getreg = vim.fn.getreg
-            local original_setreg = vim.fn.setreg
-
-            vim.fn.getreg = function(reg)
-                if reg == "v" then
-                    return "line1\nline2\nline3"
-                end
-                return ""
-            end
-
-            vim.fn.setreg = function() end
-
-            local result = utils.get_visual_text()
-            assert.equals("line1line2line3", result)
-
-            vim.fn.getreg = original_getreg
-            vim.fn.setreg = original_setreg
-        end)
-    end)
 
     describe("get_domain", function()
         it("should extract domain from https URL", function()

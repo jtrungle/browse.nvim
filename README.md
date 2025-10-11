@@ -8,7 +8,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/lalitmee/browse.nvim/ci.yml?label=Tests&style=for-the-badge)](https://github.com/lalitmee/browse.nvim/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/lalitmee/browse.nvim?color=%23FFC600&style=for-the-badge)](https://github.com/lalitmee/browse.nvim/blob/main/LICENSE)
 
-![browse.nvim](https://user-images.githubusercontent.com/10762218/217238018-29564296-063a-43cb-a3c1-28703db9c31c.gif)
+![browse.nvim](https://github.com/user-attachments/assets/2e0395f6-90e5-4698-aa76-0420033f4b5d)
 
 </div>
 
@@ -17,6 +17,25 @@ searching web resources directly from within Neovim. It uses `telescope.nvim`
 to offer a powerful picker for accessing your bookmarks, searching with
 different providers (like Google, DuckDuckGo), and querying documentation
 sites like DevDocs and MDN.
+
+## Showcase
+
+<details>
+<summary>🎥 Click here to see features in action!</summary>
+
+### Unified Command System
+![Commands](https://github.com/user-attachments/assets/b3fe3bde-ae95-48d4-b1a3-3c5895693e13)
+
+### Unified Bookmark Search
+![Unified Bookmarks](https://github.com/user-attachments/assets/617b8ba9-9cbf-473d-978e-1fa6f92cd439)
+
+### Docs Filetype Search
+![Docs Filetype Search](https://github.com/user-attachments/assets/4cd5ffaa-01ff-4396-ad77-7ccfe0041cb0)
+
+### Visual Mode Search
+![Visual Mode Search](https://github.com/user-attachments/assets/6693ff2c-374c-47df-81db-03f452d37b9f)
+
+</details>
 
 ## Features
 
