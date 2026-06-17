@@ -24,7 +24,7 @@ local get_open_cmd = function()
         open_cmd = { "open" }
     else
         if is_wsl() then
-            open_cmd = { "cmd", "/c", "start" }
+            open_cmd = { "cmd.exe", "/c", "start" }
         else
             open_cmd = { "xdg-open" }
         end
